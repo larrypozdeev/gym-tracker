@@ -1,4 +1,4 @@
-use clap::{Arg, ArgAction, ArgMatches, Command};
+use clap::{Arg, ArgAction, Command};
 
 mod exercise;
 mod user_profile;
@@ -82,8 +82,12 @@ fn main() {
             user_profile::create_profile(name.unwrap().to_string());
             println!("Creating user profile");
         }
-        Some(("list-profiles", _)) => user_profile::list_profiles(),
-
+        Some(("list-profiles", _)) => {
+            let users = user_profile::read_profiles().expect("Unable to read user profiles");
+            for user in users.list() {
+                println!("{}", user.get_name());
+            }
+        }
         _ => println!("Invalid command"),
     }
 }

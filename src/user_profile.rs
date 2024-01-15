@@ -1,6 +1,7 @@
-use crate::utils::save_user_profile;
+use crate::utils::{save_user_profile, read_user_profiles};
 use crate::workout_session::WorkoutSession;
 use serde::{Deserialize, Serialize};
+use serde_json::Result;
 
 #[derive(Serialize, Deserialize)]
 pub struct Users {
@@ -13,7 +14,7 @@ impl Users {
     pub fn new() -> Users {
         Users { users: Vec::new() }
     }
-    pub fn get_users(&self) -> &Vec<UserProfile> {
+    pub fn list(&self) -> &Vec<UserProfile> {
         &self.users
     }
 }
@@ -49,4 +50,8 @@ pub fn create_profile(name: String) {
     let dummy_workout = WorkoutSession::new(Vec::new());
     user_profile.add_workout(dummy_workout);
     save_user_profile(&user_profile).expect("Unable to save user profile");
+}
+pub fn read_profiles() -> Result<Users> {
+    let users = read_user_profiles().expect("Unable to read user profiles");
+    Ok(users)
 }

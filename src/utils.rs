@@ -1,7 +1,3 @@
-// implement json file read and write
-// and link it to user profile and workout session
-// use serde for it
-
 use crate::user_profile::UserProfile;
 use crate::user_profile::Users;
 use serde_json::Result;
@@ -12,7 +8,7 @@ use std::path::Path;
 const FILE_NAME: &str = "user_profile.json";
 
 //read from user_profile.serde_json
-pub fn read_user_profile() -> Result<Users> {
+pub fn read_user_profiles() -> Result<Users> {
     let path = Path::new(FILE_NAME);
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -31,14 +27,14 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     let path = Path::new(FILE_NAME);
     let display = path.display();
 
-    let contents = match read_user_profile() {
+    let contents = match read_user_profiles() {
         Ok(users) => serde_json::to_string(&users)?,
         Err(_) => String::from(""),
     };
 
     let mut users: Users = serde_json::from_str(&contents).unwrap_or(Users::new());
     let mut user_exists = false;
-    for user in users.get_users() {
+    for user in users.list() {
         if user.get_name() == user_profile.get_name() {
             user_exists = true;
             break;
