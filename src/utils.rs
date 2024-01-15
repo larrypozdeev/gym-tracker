@@ -21,8 +21,23 @@ pub fn read_user_profiles() -> Result<Users> {
         Ok(_) => serde_json::from_str(&contents),
     }
 }
+// saves all user profiles
+pub fn update_users(users: &Users) -> Result<()> {
+    let path = Path::new(FILE_NAME);
+    let display = path.display();
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+    let serialized = serde_json::to_string(&users)?;
+    match file.write_all(serialized.as_bytes()) {
+        Err(why) => panic!("couldn't write to {}: {}", display, why),
+        Ok(_) => println!("successfully wrote to {}", display),
+    };
+    Ok(())
+}
 
-//save to user_profile.serde_json
+//save a single user_profile
 pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     let path = Path::new(FILE_NAME);
     let display = path.display();
@@ -44,15 +59,6 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
         users.add_user(user_profile.clone());
     }
 
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display, why),
-        Ok(file) => file,
-    };
-
-    let serialized = serde_json::to_string(&users)?;
-    match file.write_all(serialized.as_bytes()) {
-        Err(why) => panic!("couldn't write to {}: {}", display, why),
-        Ok(_) => println!("successfully wrote to {}", display),
-    };
+    update_users(&users).expect("Unable to update user profiles");
     Ok(())
 }

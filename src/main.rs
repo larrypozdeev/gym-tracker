@@ -87,6 +87,11 @@ fn main() {
             for user in users.list() {
                 println!("{}", user.get_name());
             }
+        },
+        Some(("delete-profile", sub_m)) => {
+            let name = sub_m.get_one::<String>("name");
+            user_profile::delete_profile(name.unwrap().to_string());
+            println!("Deleting user profile");
         }
         _ => println!("Invalid command"),
     }
