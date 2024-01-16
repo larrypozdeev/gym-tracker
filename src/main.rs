@@ -79,7 +79,8 @@ fn main() {
         Some(("end", _)) => workout_session::end(),
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::create_profile(name.unwrap().to_string());
+            user_profile::create_profile(name.unwrap().to_string())
+                .expect("Unable to create user profile");
             println!("Creating user profile");
         }
         Some(("list-profiles", _)) => {
@@ -87,11 +88,17 @@ fn main() {
             for user in users.list() {
                 println!("{}", user.get_name());
             }
-        },
+        }
         Some(("delete-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::delete_profile(name.unwrap().to_string());
+            user_profile::delete_profile(name.unwrap().to_string())
+                .expect("Unable to delete user profile");
             println!("Deleting user profile");
+        }
+        Some(("choose-profile", sub_m)) => {
+            let name = sub_m.get_one::<String>("name");
+            user_profile::choose_profile(name.unwrap().to_string()).expect("Unable to choose user profile");
+            println!("Choosing user profile");
         }
         _ => println!("Invalid command"),
     }
