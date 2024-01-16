@@ -28,19 +28,6 @@ impl UserProfile {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct CurrentUser {
-    user: UserProfile,
-}
-impl CurrentUser {
-    pub fn new(user: UserProfile) -> CurrentUser {
-        CurrentUser { user }
-    }
-    pub fn get_user(&self) -> &UserProfile {
-        &self.user
-    }
-}
-
-#[derive(Serialize, Deserialize)]
 pub struct Users {
     users: Vec<UserProfile>,
 }
