@@ -38,6 +38,7 @@ fn cli() -> Command {
                         .action(ArgAction::Set)
                         .index(1),
                 ),
+            Command::new("current-profile").about("Shows the current user profile"),
             Command::new("delete-profile")
                 .about("Deletes a user profile")
                 .arg(
@@ -74,13 +75,13 @@ fn cli() -> Command {
 fn main() {
     let binding = cli();
     let matches = binding.get_matches();
+
     match matches.subcommand() {
         Some(("start", _)) => workout_session::start(),
         Some(("end", _)) => workout_session::end(),
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::create_profile(name.unwrap().to_string())
-                .expect("Unable to create user profile");
+            user_profile::create_profile(name.unwrap().to_string());
             println!("Creating user profile");
         }
         Some(("list-profiles", _)) => {
@@ -91,14 +92,17 @@ fn main() {
         }
         Some(("delete-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::delete_profile(name.unwrap().to_string())
-                .expect("Unable to delete user profile");
-            println!("Deleting user profile");
+            user_profile::delete_profile(name.unwrap().to_string());
+            println!("Deleted profile: {}", name.unwrap());
         }
         Some(("choose-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::choose_profile(name.unwrap().to_string()).expect("Unable to choose user profile");
-            println!("Choosing user profile");
+            user_profile::choose_profile(name.unwrap().to_string());
+            println!("Chosen profile {}", name.unwrap());
+        }
+        Some(("current-profile", _)) => {
+            let user = user_profile::read_current_user().unwrap();
+            println!("Current user: {}", user);
         }
         _ => println!("Invalid command"),
     }
