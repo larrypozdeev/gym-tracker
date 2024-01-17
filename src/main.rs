@@ -4,6 +4,7 @@ mod errors;
 mod exercise;
 mod user_profile;
 mod utils;
+mod set;
 mod workout_session;
 
 fn cli() -> Command {
@@ -57,7 +58,27 @@ fn cli() -> Command {
             Command::new("delete").about("Deletes a chosen workout session"),
         ])
         .subcommands([
-            Command::new("create-exercise").about("Creates an exercise"),
+            Command::new("create-exercise")
+                .about("Creates an exercise")
+                .arg(
+                    Arg::new("name")
+                        .help("The name of the exercise")
+                        .required(true)
+                        .index(1),
+                )
+                .arg(
+                    Arg::new("description")
+                        .help("The description of the exercise")
+                        .required(true)
+                        .index(2),
+                )
+                .arg(
+                    Arg::new("musclegroups")
+                        .help("The muscle groups of the exercise")
+                        .required(true)
+                        .index(3)
+                        .action(ArgAction::Append),
+                ),
             Command::new("list-exercises").about("Lists all exercises"),
             Command::new("delete-exercise").about("Deletes an exercise"),
             Command::new("edit-exercise").about("Edits an exercise"),
@@ -91,7 +112,10 @@ fn main() {
         }
         Some(("current-session", _)) => {
             let workout_session = workout_session::get_current_session();
-            println!("Current workout session: {}", workout_session.get_name().to_string());
+            println!(
+                "Current workout session: {}",
+                workout_session.get_name().to_string()
+            );
         }
         Some(("list", _)) => {
             workout_session::list();
@@ -124,6 +148,8 @@ fn main() {
         Some(("current-profile", _)) => {
             let user = user_profile::read_current_user().unwrap();
             println!("Current user: {}", user);
+        }
+        Some(("create-exercise", _)) => {
         }
         _ => println!("Invalid command"),
     }
