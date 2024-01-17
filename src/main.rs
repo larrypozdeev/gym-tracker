@@ -84,7 +84,7 @@ fn main() {
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
             user_profile::create_profile(name.unwrap().to_string()).unwrap();
-            println!("Creating user profile");
+            user_profile::choose_profile(name.unwrap().to_string()).unwrap();
         }
         Some(("list-profiles", _)) => {
             let users = user_profile::read_profiles().expect("Unable to read user profiles");
@@ -96,6 +96,7 @@ fn main() {
             let name = sub_m.get_one::<String>("name");
             user_profile::delete_profile(name.unwrap().to_string()).unwrap();
             println!("Deleted profile: {}", name.unwrap());
+            user_profile::choose_profile("default".to_string()).unwrap();
         }
         Some(("choose-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
@@ -110,10 +111,3 @@ fn main() {
     }
 }
 
-// clear test_files directory function
-pub fn clear_test_files() {
-    let paths = fs::read_dir("test_files").unwrap();
-    for path in paths {
-        fs::remove_file(path.unwrap().path()).unwrap();
-    }
-}

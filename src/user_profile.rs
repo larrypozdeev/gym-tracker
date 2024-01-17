@@ -127,6 +127,16 @@ pub fn read_current_user() -> Result<String> {
 pub fn choose_profile(name: String) -> Result<()> {
     let users = read_profiles().expect("Unable to read user profiles");
 
+    if name == "default" {
+        for user in users.list() {
+            if user.get_name() != "default" {
+                let file_contents = FileContents::UserProfile(user.clone());
+                return update_file(CURRENT_USER_FILE_NAME, &file_contents);
+            }
+        }
+        create_profile("default".to_string())?;
+    }
+
     let user = users
         .get_user(&name)
         .ok_or(OtherError("User does not exist".to_string()))?;
