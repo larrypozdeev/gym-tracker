@@ -3,27 +3,40 @@ use crate::errors::ResultError::OtherError;
 use crate::utils::{read_file, update_file, FileContents};
 use crate::workout_session::WorkoutSession;
 use serde::{Deserialize, Serialize};
-
+use crate::exercise::Exercise;
 const FILE_NAME: &str = "user_profile.json";
 const CURRENT_USER_FILE_NAME: &str = "current_user.json";
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct UserProfile {
     name: String,
+    chosen_workout_session: Option<String>,
     workouts: Vec<WorkoutSession>,
+    created_exercises: Vec<Exercise>
 }
 
 impl UserProfile {
     pub fn new(name: String) -> UserProfile {
         UserProfile {
             name,
+            chosen_workout_session: None,
             workouts: Vec::new(),
+            created_exercises: Vec::new(),
         }
     }
-    fn add_workout(&mut self, workout: WorkoutSession) {
+    pub fn get_chosen_workout_session(&self) -> Option<&String> {
+        self.chosen_workout_session.as_ref()
+    }
+    pub fn set_chosen_workout_session(&mut self, workout_session: String) {
+        self.chosen_workout_session = Some(workout_session);
+    }
+    pub fn add_workout(&mut self, workout: WorkoutSession) {
         self.workouts.push(workout);
     }
-    fn get_workouts(&self) -> &Vec<WorkoutSession> {
+    pub fn remove_workout(&mut self, workout: WorkoutSession) {
+        self.workouts.retain(|x| x != &workout);
+    }
+    pub fn get_workouts(&self) -> &Vec<WorkoutSession> {
         &self.workouts
     }
     pub fn get_name(&self) -> &String {
@@ -94,7 +107,18 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     if !user_exists {
         users.add_user(user_profile.clone());
     }
-
+    // make sure to update the user profile if it already exists
+    else {
+        let user = users
+            .get_user(user_profile.get_name())
+            .ok_or(OtherError("User does not exist".to_string()))?;
+        let index = users
+            .list()
+            .iter()
+            .position(|x| x == user)
+            .ok_or(OtherError("User does not exist".to_string()))?;
+        users.users[index] = user_profile.clone();
+    }
     let file_contents = FileContents::Users(users);
     update_file(FILE_NAME, &file_contents)
 }

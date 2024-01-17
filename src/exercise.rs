@@ -41,3 +41,5 @@ impl Exercise {
         self.exercise_id
     }
 }
+
+

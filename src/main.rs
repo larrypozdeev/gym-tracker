@@ -1,5 +1,4 @@
 use clap::{Arg, ArgAction, Command};
-use std::fs;
 
 mod errors;
 mod exercise;
@@ -45,11 +44,17 @@ fn cli() -> Command {
         ])
         .subcommands([
             Command::new("start").about("Starts a workout session"),
-            Command::new("end").about("Ends a workout session"),
-            Command::new("choose").about("Chooses a workout session"),
+            Command::new("choose")
+                .about("Chooses a workout session")
+                .arg(
+                    Arg::new("name")
+                        .help("The name of the workout session")
+                        .required(true)
+                        .index(1),
+                ),
+            Command::new("current-session").about("Shows the current workout session"),
             Command::new("list").about("Lists all workout sessions"),
-            Command::new("delete").about("Deletes a workout session"),
-            Command::new("edit").about("Edits a workout session"),
+            Command::new("delete").about("Deletes a chosen workout session"),
         ])
         .subcommands([
             Command::new("create-exercise").about("Creates an exercise"),
@@ -80,7 +85,20 @@ fn main() {
 
     match matches.subcommand() {
         Some(("start", _)) => workout_session::start(),
-        Some(("end", _)) => workout_session::end(),
+        Some(("choose", sub_m)) => {
+            let name = sub_m.get_one::<String>("name");
+            workout_session::choose(name.unwrap().to_string());
+        }
+        Some(("current-session", _)) => {
+            let workout_session = workout_session::get_current_session();
+            println!("Current workout session: {}", workout_session.get_name().to_string());
+        }
+        Some(("list", _)) => {
+            workout_session::list();
+        }
+        Some(("delete", _)) => {
+            workout_session::delete();
+        }
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
             user_profile::create_profile(name.unwrap().to_string()).unwrap();
@@ -110,4 +128,3 @@ fn main() {
         _ => println!("Invalid command"),
     }
 }
-
