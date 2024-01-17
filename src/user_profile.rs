@@ -1,6 +1,7 @@
+use crate::errors::Result;
+use crate::errors::ResultError::OtherError;
 use crate::utils::{read_file, update_file, FileContents};
 use crate::workout_session::WorkoutSession;
-use serde_json::Result;
 use serde::{Deserialize, Serialize};
 
 const FILE_NAME: &str = "user_profile.json";
@@ -54,20 +55,14 @@ impl Users {
         false
     }
     pub fn delete_user(&mut self, name: String) -> Result<()> {
-        let mut index = 0;
-        for user in self.users.iter() {
-            if user.get_name() == &name {
-                break;
-            }
-            index += 1;
-        }
-        if index < self.users.len() {
+        if let Some(index) = self.users.iter().position(|user| user.get_name() == &name) {
             self.users.remove(index);
             Ok(())
         } else {
-            panic!("User does not exist");
+            Err(OtherError("User does not exist".to_string()))
         }
     }
+
     pub fn get_user(&self, name: &String) -> Option<&UserProfile> {
         for user in self.users.iter() {
             if user.get_name() == name {
@@ -80,15 +75,17 @@ impl Users {
 
 pub fn read_profiles() -> Result<Users> {
     let contents = read_file(FILE_NAME)?;
-    let users: Users = match contents {
-        FileContents::Users(users) => users,
-        _ => panic!("Unable to read user profiles"),
-    };
-    Ok(users)
+    match contents {
+        FileContents::Users(users) => Ok(users),
+        _ => Err(OtherError("Unable to read user profiles".to_string())),
+    }
 }
 
-pub fn save_user_profile(user_profile: &UserProfile) {
-    let mut users = read_profiles().expect("Unable to read user profiles");
+pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
+    let mut users = match read_profiles() {
+        Ok(users) => users,
+        Err(e) => Err(e)?,
+    };
 
     let user_exists = users.user_exists(user_profile.get_name());
 
@@ -100,19 +97,19 @@ pub fn save_user_profile(user_profile: &UserProfile) {
     update_file(FILE_NAME, &file_contents)
 }
 
-pub fn create_profile(name: String) {
+pub fn create_profile(name: String) -> Result<()> {
     let user_profile = UserProfile::new(name);
-    save_user_profile(&user_profile);
+    save_user_profile(&user_profile)
 }
 
-pub fn delete_profile(name: String) {
+pub fn delete_profile(name: String) -> Result<()> {
     let mut users = read_profiles().expect("Unable to read user profiles");
     users
         .delete_user(name)
         .expect("Unable to delete user profile");
 
     let file_contents = FileContents::Users(users);
-    update_file(FILE_NAME, &file_contents);
+    update_file(FILE_NAME, &file_contents)
 }
 
 pub fn read_current_user() -> Result<String> {
@@ -125,21 +122,13 @@ pub fn read_current_user() -> Result<String> {
     Ok(user_profile.get_name().to_string())
 }
 
-pub fn choose_profile(name: String) {
+pub fn choose_profile(name: String) -> Result<()> {
     let users = read_profiles().expect("Unable to read user profiles");
-    let mut user_exists = false;
-    for user in users.list() {
-        if user.get_name() == &name {
-            user_exists = true;
-            break;
-        }
-    }
-    if !user_exists {
-        panic!("User does not exist");
-    }
 
-    let user_profile = UserProfile::new(name);
+    let user = users
+        .get_user(&name)
+        .ok_or(OtherError("User does not exist".to_string()))?;
 
-    let file_contents = FileContents::UserProfile(user_profile);
+    let file_contents = FileContents::UserProfile(user.clone());
     update_file(CURRENT_USER_FILE_NAME, &file_contents)
 }

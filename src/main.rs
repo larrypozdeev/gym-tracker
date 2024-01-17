@@ -1,5 +1,6 @@
 use clap::{Arg, ArgAction, Command};
 
+mod errors;
 mod exercise;
 mod user_profile;
 mod utils;
@@ -10,14 +11,6 @@ fn cli() -> Command {
         .about("Controls a workout session")
         .subcommand_required(true)
         .arg_required_else_help(true)
-        .subcommands([
-            Command::new("start").about("Starts a workout session"),
-            Command::new("end").about("Ends a workout session"),
-            Command::new("choose").about("Chooses a workout session"),
-            Command::new("list").about("Lists all workout sessions"),
-            Command::new("delete").about("Deletes a workout session"),
-            Command::new("edit").about("Edits a workout session"),
-        ])
         .subcommands([
             Command::new("create-profile")
                 .about("Creates a user profile")
@@ -48,6 +41,14 @@ fn cli() -> Command {
                         .action(ArgAction::Set)
                         .index(1),
                 ),
+        ])
+        .subcommands([
+            Command::new("start").about("Starts a workout session"),
+            Command::new("end").about("Ends a workout session"),
+            Command::new("choose").about("Chooses a workout session"),
+            Command::new("list").about("Lists all workout sessions"),
+            Command::new("delete").about("Deletes a workout session"),
+            Command::new("edit").about("Edits a workout session"),
         ])
         .subcommands([
             Command::new("create-exercise").about("Creates an exercise"),
@@ -81,7 +82,7 @@ fn main() {
         Some(("end", _)) => workout_session::end(),
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::create_profile(name.unwrap().to_string());
+            user_profile::create_profile(name.unwrap().to_string()).unwrap();
             println!("Creating user profile");
         }
         Some(("list-profiles", _)) => {
@@ -92,12 +93,12 @@ fn main() {
         }
         Some(("delete-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::delete_profile(name.unwrap().to_string());
+            user_profile::delete_profile(name.unwrap().to_string()).unwrap();
             println!("Deleted profile: {}", name.unwrap());
         }
         Some(("choose-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
-            user_profile::choose_profile(name.unwrap().to_string());
+            user_profile::choose_profile(name.unwrap().to_string()).unwrap();
             println!("Chosen profile {}", name.unwrap());
         }
         Some(("current-profile", _)) => {
