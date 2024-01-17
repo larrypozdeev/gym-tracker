@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Exercise {
     exercise_id: i32,
     exercise_name: String,
@@ -39,10 +39,5 @@ impl Exercise {
     }
     fn get_exercise_id(&self) -> i32 {
         self.exercise_id
-    }
-}
-impl PartialEq for Exercise {
-    fn eq(&self, other: &Self) -> bool {
-        self.exercise_id == other.exercise_id
     }
 }

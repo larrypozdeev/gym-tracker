@@ -6,8 +6,17 @@ pub enum FileError {
     IoError(Error),
     SerdeError(serde_json::Error),
 }
+impl PartialEq for FileError {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (FileError::IoError(e1), FileError::IoError(e2)) => e1.kind() == e2.kind(),
+            (FileError::SerdeError(e1), FileError::SerdeError(e2)) => e1.io_error_kind() == e2.io_error_kind(),
+            _ => false,
+        }
+    }
+}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ResultError {
     FileError(FileError),
     OtherError(String),

@@ -1,4 +1,5 @@
 use clap::{Arg, ArgAction, Command};
+use std::fs;
 
 mod errors;
 mod exercise;
@@ -106,5 +107,13 @@ fn main() {
             println!("Current user: {}", user);
         }
         _ => println!("Invalid command"),
+    }
+}
+
+// clear test_files directory function
+pub fn clear_test_files() {
+    let paths = fs::read_dir("test_files").unwrap();
+    for path in paths {
+        fs::remove_file(path.unwrap().path()).unwrap();
     }
 }

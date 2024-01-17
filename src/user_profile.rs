@@ -7,14 +7,14 @@ use serde::{Deserialize, Serialize};
 const FILE_NAME: &str = "user_profile.json";
 const CURRENT_USER_FILE_NAME: &str = "current_user.json";
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct UserProfile {
     name: String,
     workouts: Vec<WorkoutSession>,
 }
 
 impl UserProfile {
-    fn new(name: String) -> UserProfile {
+    pub fn new(name: String) -> UserProfile {
         UserProfile {
             name,
             workouts: Vec::new(),
@@ -31,7 +31,7 @@ impl UserProfile {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct Users {
     users: Vec<UserProfile>,
 }
@@ -43,6 +43,7 @@ impl Users {
     pub fn new() -> Users {
         Users { users: Vec::new() }
     }
+
     pub fn list(&self) -> &Vec<UserProfile> {
         &self.users
     }
@@ -71,6 +72,7 @@ impl Users {
         }
         None
     }
+
 }
 
 pub fn read_profiles() -> Result<Users> {

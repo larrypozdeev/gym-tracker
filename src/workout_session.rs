@@ -1,7 +1,7 @@
 use crate::exercise::Exercise;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct WorkoutSession {
     exercises: Vec<Exercise>,
 }
