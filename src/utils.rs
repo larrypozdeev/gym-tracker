@@ -60,9 +60,11 @@ pub fn update_file(path: &str, contents: &FileContents) -> Result<()> {
 }
 
 #[cfg(test)]
-mod test_utils {
+pub mod test_utils {
     use std::path::Path;
     use std::{fs, io::Write};
+    use crate::user_profile::{UserProfile, Users, save_user_profile};
+    use crate::utils::{FileContents, read_file, update_file};
 
     pub const TEST_FILE: &str = "test_files/test.json";
     pub const INVALID_FILE: &str = "test_files/invalid.json";
@@ -75,6 +77,16 @@ mod test_utils {
         }
     }
 
+    pub fn create_test_user_profile () {
+        let user_profile = UserProfile::new("test".to_string());
+        // save user profile in test file
+        update_file(TEST_FILE, &FileContents::UserProfile(user_profile.clone())).unwrap();
+
+        let mut users = Users::new();
+        users.add_user(user_profile);
+        update_file(TEST_FILE, &FileContents::Users(users)).unwrap();
+
+    }
     pub fn generate_invalid_json() {
         let path = Path::new(INVALID_FILE);
         if !path.exists() {

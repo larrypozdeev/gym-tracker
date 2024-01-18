@@ -44,23 +44,14 @@ pub fn create_exercise(
     muscle_groups: Vec<String>,
     equipment: String,
 ) -> Result<()> {
-    Exercise::new(name.clone(), description.clone(), muscle_groups.clone(), equipment.clone());
+    Exercise::new(
+        name.clone(),
+        description.clone(),
+        muscle_groups.clone(),
+        equipment.clone(),
+    );
     let mut user_profile = get_current_user()?;
     user_profile.add_exercise(Exercise::new(name, description, muscle_groups, equipment));
     user_profile.save()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_create_exercise() {
-        let name = "test".to_string();
-        let description = Some("test description".to_string());
-        let muscle_groups = vec!["test".to_string()];
-        let equipment = "test".to_string();
-        let result = create_exercise(name, description, muscle_groups, equipment);
-        assert!(result.is_ok());
-    }
-}

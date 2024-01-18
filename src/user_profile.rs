@@ -36,6 +36,9 @@ impl UserProfile {
     pub fn add_exercise(&mut self, exercise: Exercise) {
         self.created_exercises.push(exercise);
     }
+    pub fn get_exercises(&self) -> &Vec<Exercise> {
+        &self.created_exercises
+    }
     pub fn remove_workout(&mut self, workout: WorkoutSession) {
         self.workouts.retain(|x| x != &workout);
     }
