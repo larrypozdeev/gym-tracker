@@ -123,6 +123,7 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     update_file(FILE_NAME, &file_contents)
 }
 
+
 pub fn create_profile(name: String) -> Result<()> {
     let user_profile = UserProfile::new(name);
     save_user_profile(&user_profile)
@@ -138,12 +139,28 @@ pub fn delete_profile(name: String) -> Result<()> {
     update_file(FILE_NAME, &file_contents)
 }
 
-pub fn read_current_user() -> Result<String> {
+pub fn get_current_user() -> Result<UserProfile> {
+    // {CURRENT_USER_FILE_NAME} doesn't store any data other than the name of the current user
+    // so, we need to read both both files and find the user profile that matches the name
+
+    let users = read_profiles().expect("Unable to read user profiles");
     let contents = read_file(CURRENT_USER_FILE_NAME)?;
-    let user_profile: UserProfile = match contents {
-        FileContents::UserProfile(user_profile) => user_profile,
-        _ => panic!("Unable to read current user"),
-    };
+
+    match contents {
+        FileContents::UserProfile(user_profile) => {
+            for user in users.list() {
+                if user.get_name() == user_profile.get_name() {
+                    return Ok(user.clone());
+                }
+            }
+            Err(OtherError("Unable to find current user".to_string()))
+        }
+        _ => Err(OtherError("Unable to read current user".to_string())),
+    }
+}
+
+pub fn read_current_user() -> Result<String> {
+    let user_profile = get_current_user()?;
 
     Ok(user_profile.get_name().to_string())
 }
