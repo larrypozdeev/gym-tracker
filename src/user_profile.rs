@@ -53,6 +53,7 @@ impl Users {
     pub fn add_user(&mut self, user: UserProfile) {
         self.users.push(user);
     }
+
     pub fn new() -> Users {
         Users { users: Vec::new() }
     }
@@ -60,6 +61,7 @@ impl Users {
     pub fn list(&self) -> &Vec<UserProfile> {
         &self.users
     }
+
     pub fn user_exists(&self, name: &String) -> bool {
         for user in self.users.iter() {
             if user.get_name() == name {
@@ -68,6 +70,7 @@ impl Users {
         }
         false
     }
+
     pub fn delete_user(&mut self, name: String) -> Result<()> {
         if let Some(index) = self.users.iter().position(|user| user.get_name() == &name) {
             self.users.remove(index);
@@ -107,7 +110,6 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     if !user_exists {
         users.add_user(user_profile.clone());
     }
-    // make sure to update the user profile if it already exists
     else {
         let user = users
             .get_user(user_profile.get_name())
@@ -119,6 +121,7 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
             .ok_or(OtherError("User does not exist".to_string()))?;
         users.users[index] = user_profile.clone();
     }
+
     let file_contents = FileContents::Users(users);
     update_file(FILE_NAME, &file_contents)
 }
@@ -153,6 +156,7 @@ pub fn get_current_user() -> Result<UserProfile> {
                     return Ok(user.clone());
                 }
             }
+
             Err(OtherError("Unable to find current user".to_string()))
         }
         _ => Err(OtherError("Unable to read current user".to_string())),
@@ -184,4 +188,76 @@ pub fn choose_profile(name: String) -> Result<()> {
 
     let file_contents = FileContents::UserProfile(user.clone());
     update_file(CURRENT_USER_FILE_NAME, &file_contents)
+}
+
+
+#[cfg(test)]
+mod tests {
+    // unit tests for user_profile.rs
+    use super::*;
+    use crate::errors::ResultError;
+
+    #[test]
+    fn test_new() {
+        let users = Users::new();
+        assert_eq!(users.list(), &Vec::new());
+    }
+
+    #[test]
+    fn test_add_user() {
+        let mut users = Users::new();
+        let user = UserProfile::new("test".to_string());
+        users.add_user(user.clone());
+        assert_eq!(users.list(), &vec![user]);
+    }
+
+    #[test]
+    fn test_user_exists() {
+        let mut users = Users::new();
+        let user = UserProfile::new("test".to_string());
+        users.add_user(user.clone());
+        assert!(users.user_exists(&user.get_name()));
+    }
+
+    #[test]
+    fn test_user_does_not_exist() {
+        let users = Users::new();
+        assert!(!users.user_exists(&"test".to_string()));
+    }
+
+    #[test]
+    fn test_delete_user() {
+        let mut users = Users::new();
+        let user = UserProfile::new("test".to_string());
+        users.add_user(user.clone());
+        users.delete_user(user.get_name().to_string()).unwrap();
+        assert_eq!(users.list(), &Vec::new());
+    }
+
+    #[test]
+    fn test_delete_user_does_not_exist() {
+        let mut users = Users::new();
+        let user = UserProfile::new("test".to_string());
+        users.add_user(user.clone());
+        let result = users.delete_user("test2".to_string());
+        assert!(matches!(
+            result,
+            Err(ResultError::OtherError(_))
+        ));
+    }
+
+    #[test]
+    fn test_get_user() {
+        let mut users = Users::new();
+        let user = UserProfile::new("test".to_string());
+        users.add_user(user.clone());
+        assert_eq!(users.get_user(&user.get_name()), Some(&user));
+    }
+
+    #[test]
+    fn test_get_user_does_not_exist() {
+        let users = Users::new();
+        assert_eq!(users.get_user(&"test".to_string()), None);
+    }
+
 }
