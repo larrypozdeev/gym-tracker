@@ -82,7 +82,6 @@ mod test_utils {
             file.write_all(b"invalid json").unwrap();
         }
     }
-
 }
 
 // tests for utils.rs

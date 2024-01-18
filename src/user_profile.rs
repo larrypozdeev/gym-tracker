@@ -33,6 +33,9 @@ impl UserProfile {
     pub fn add_workout(&mut self, workout: WorkoutSession) {
         self.workouts.push(workout);
     }
+    pub fn add_exercise(&mut self, exercise: Exercise) {
+        self.created_exercises.push(exercise);
+    }
     pub fn remove_workout(&mut self, workout: WorkoutSession) {
         self.workouts.retain(|x| x != &workout);
     }
@@ -41,6 +44,9 @@ impl UserProfile {
     }
     pub fn get_name(&self) -> &String {
         &self.name
+    }
+    pub fn save(&self) -> Result<()> {
+        save_user_profile(self)
     }
 }
 

@@ -2,9 +2,9 @@ use clap::{Arg, ArgAction, Command};
 
 mod errors;
 mod exercise;
+mod set;
 mod user_profile;
 mod utils;
-mod set;
 mod workout_session;
 
 fn cli() -> Command {
@@ -63,21 +63,31 @@ fn cli() -> Command {
                 .arg(
                     Arg::new("name")
                         .help("The name of the exercise")
+                        .action(ArgAction::Set)
+                        .short('n')
                         .required(true)
-                        .index(1),
-                )
-                .arg(
-                    Arg::new("description")
-                        .help("The description of the exercise")
-                        .required(true)
-                        .index(2),
                 )
                 .arg(
                     Arg::new("musclegroups")
                         .help("The muscle groups of the exercise")
+                        .short('m')
                         .required(true)
-                        .index(3)
-                        .action(ArgAction::Append),
+                        .action(ArgAction::Append)
+                        .value_delimiter(','),
+                )
+                .arg(
+                    Arg::new("equipment")
+                        .help("The equipment used for the exercise")
+                        .short('e')
+                        .action(ArgAction::Set)
+                        .required(true)
+                )
+                .arg(
+                    Arg::new("description")
+                        .help("The description of the exercise")
+                        .short('d')
+                        .required(false)
+                        .action(ArgAction::Set)
                 ),
             Command::new("list-exercises").about("Lists all exercises"),
             Command::new("delete-exercise").about("Deletes an exercise"),
@@ -150,8 +160,27 @@ fn main() {
             let user = user_profile::read_current_user().unwrap();
             println!("Current user: {}", user);
         }
-        Some(("create-exercise", _)) => {
+        Some(("create-exercise", sub_m)) => {
+            let name = sub_m.get_one::<String>("name").unwrap();
+            let description = match sub_m.get_one::<String>("description") {
+                Some(description) => Some(description.to_string()),
+                None => None,
+            };
+            let muscle_groups = match sub_m.get_many::<String>("musclegroups") {
+                Some(muscle_groups) => muscle_groups.map(|s| s.to_string()).collect(),
+                None => vec![],
+            };
+
+            let equipment = sub_m.get_one::<String>("equipment").unwrap();
+
+            exercise::create_exercise(
+                name.to_string(),
+                description,
+                muscle_groups,
+                equipment.to_string(),
+            )
+            .unwrap();
         }
-        _ => println!("Invalid command"),
+        _ => {}
     }
 }
