@@ -44,8 +44,8 @@ fn cli() -> Command {
                 ),
         ])
         .subcommands([
-            Command::new("start").about("Starts a workout session"),
-            Command::new("choose")
+            Command::new("start-workout").about("Starts a workout session"),
+            Command::new("choose-workout")
                 .about("Chooses a workout session")
                 .arg(
                     Arg::new("name")
@@ -53,9 +53,9 @@ fn cli() -> Command {
                         .required(true)
                         .index(1),
                 ),
-            Command::new("current-session").about("Shows the current workout session"),
-            Command::new("list").about("Lists all workout sessions"),
-            Command::new("delete").about("Deletes a chosen workout session"),
+            Command::new("current-workout").about("Shows the current workout session"),
+            Command::new("list-workouts").about("Lists all workout sessions"),
+            Command::new("delete-workout").about("Deletes a chosen workout session"),
         ])
         .subcommands([
             Command::new("create-exercise")
@@ -105,24 +105,25 @@ fn main() {
     let matches = binding.get_matches();
 
     match matches.subcommand() {
-        Some(("start", _)) => workout_session::start(),
-        Some(("choose", sub_m)) => {
+        Some(("start-workout", _)) => workout_session::start(),
+        Some(("choose-workout", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
             workout_session::choose(name.unwrap().to_string());
         }
-        Some(("current-session", _)) => {
+        Some(("current-workout", _)) => {
             let workout_session = workout_session::get_current_session();
             println!(
                 "Current workout session: {}",
                 workout_session.get_name().to_string()
             );
         }
-        Some(("list", _)) => {
+        Some(("list-workouts", _)) => {
             workout_session::list();
         }
-        Some(("delete", _)) => {
+        Some(("delete-workout", _)) => {
             workout_session::delete();
         }
+
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
             user_profile::create_profile(name.unwrap().to_string()).unwrap();
