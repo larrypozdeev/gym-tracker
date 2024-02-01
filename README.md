@@ -1,2 +1,2 @@
-# gym-tracker
-Simple cli workout tracker written in Rust
+# gym-tracker-cli
+Simple cli workout tracker written in Rust.
