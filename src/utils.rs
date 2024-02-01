@@ -64,7 +64,7 @@ pub mod test_utils {
     use std::path::Path;
     use std::{fs, io::Write};
     use crate::user_profile::{UserProfile, Users};
-    use crate::utils::{FileContents, read_file, update_file};
+    use crate::utils::{FileContents, update_file};
 
     pub const TEST_FILE: &str = "test_files/test.json";
     pub const INVALID_FILE: &str = "test_files/invalid.json";
@@ -77,6 +77,7 @@ pub mod test_utils {
         }
     }
 
+    #[allow(dead_code)]
     pub fn create_test_user_profile () {
         let user_profile = UserProfile::new("test".to_string());
         // save user profile in test file

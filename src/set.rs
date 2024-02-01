@@ -30,11 +30,6 @@ impl Set {
     pub fn get_is_dropset(&self) -> &bool {
         &self.is_dropset
     }
-    pub fn edit(&mut self, reps: u32, weight: f32, is_dropset: bool) {
-        self.reps = reps;
-        self.weight = weight;
-        self.is_dropset = is_dropset;
-    }
 }
 
 pub fn create_set(exercise: String, reps: u32, weight: f32, is_dropset: bool) -> () {

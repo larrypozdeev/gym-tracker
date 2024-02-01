@@ -24,18 +24,6 @@ impl Exercise {
             equipment,
         }
     }
-    pub fn set_exercise_name(&mut self, name: String) {
-        self.name = name;
-    }
-    pub fn set_exercise_description(&mut self, description: String) {
-        self.description = description;
-    }
-    pub fn set_exercise_muscle_groups(&mut self, muscle_groups: Vec<String>) {
-        self.muscle_groups = muscle_groups;
-    }
-    pub fn set_exercise_equipment(&mut self, equipment: String) {
-        self.equipment = equipment;
-    }
     pub fn get_name(&self) -> &String {
         &self.name
     }
