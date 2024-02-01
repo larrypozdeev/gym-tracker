@@ -1,4 +1,4 @@
-use crate::{exercise::Exercise, user_profile};
+use crate::user_profile;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]

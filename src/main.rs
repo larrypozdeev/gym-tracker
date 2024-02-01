@@ -56,6 +56,7 @@ fn cli() -> Command {
             Command::new("current-workout").about("Shows the current workout session"),
             Command::new("list-workouts").about("Lists all workout sessions"),
             Command::new("delete-workout").about("Deletes a chosen workout session"),
+            Command::new("display-workout").about("Displays a chosen workout session"),
         ])
         .subcommands([
             Command::new("create-exercise")
@@ -145,7 +146,9 @@ fn main() {
         Some(("delete-workout", _)) => {
             workout_session::delete();
         }
-
+        Some(("display-workout", _)) => {
+            workout_session::display();
+        }
         Some(("create-profile", sub_m)) => {
             let name = sub_m.get_one::<String>("name");
             user_profile::create_profile(name.unwrap().to_string()).unwrap();

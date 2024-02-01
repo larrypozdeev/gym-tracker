@@ -56,6 +56,14 @@ impl UserProfile {
     pub fn get_workouts(&self) -> &Vec<WorkoutSession> {
         &self.workouts
     }
+    pub fn get_workout(&self, name: &String) -> Option<&WorkoutSession> {
+        for workout in self.workouts.iter() {
+            if workout.get_name() == name {
+                return Some(workout);
+            }
+        }
+        None
+    }
     pub fn get_name(&self) -> &String {
         &self.name
     }

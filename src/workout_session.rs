@@ -28,9 +28,6 @@ impl WorkoutSession {
     pub fn add_set(&mut self, set: Set) {
         self.sets.push(set);
     }
-    pub fn remove_set(&mut self, set: Set) {
-        self.sets.retain(|s| s != &set);
-    }
 }
 
 pub fn start() {
@@ -118,8 +115,16 @@ pub fn save_current_session(workout_session: &WorkoutSession) -> crate::errors::
         .unwrap()
         .clone();
 
-    user.remove_workout(workout_session.clone());
+    let current_session_name = user.get_chosen_workout_session().clone().unwrap();
+    let current_session = user
+        .get_workouts()
+        .iter()
+        .find(|x| x.get_name() == current_session_name)
+        .unwrap();
+
+    user.remove_workout(current_session.clone());
     user.add_workout(workout_session.clone());
+
 
     save_user_profile(&user)
 }
@@ -139,4 +144,16 @@ pub fn delete() {
 
     save_user_profile(&user).unwrap();
     println!("Deleted workout session: {}", current_session.get_name());
+}
+
+pub fn display() {
+    let current_session = get_current_session();
+    println!("Workout session: {}", current_session.get_name());
+    for set in current_session.get_sets() {
+        println!("Set: {}", set.get_exercise());
+        println!("Reps: {}", set.get_reps());
+        println!("Weight: {}", set.get_weight());
+        println!("Is dropset: {}", set.get_is_dropset());
+        println!();
+    }
 }
