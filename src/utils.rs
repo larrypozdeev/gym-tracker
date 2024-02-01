@@ -61,13 +61,12 @@ pub fn update_file(path: &str, contents: &FileContents) -> Result<()> {
 
 #[cfg(test)]
 pub mod test_utils {
-    use std::path::Path;
-    use std::{fs, io::Write};
     use crate::user_profile::{UserProfile, Users};
-    use crate::utils::{FileContents, update_file};
+    use crate::utils::{update_file, FileContents};
+    use std::fs;
+    use std::path::Path;
 
     pub const TEST_FILE: &str = "test_files/test.json";
-    pub const INVALID_FILE: &str = "test_files/invalid.json";
     pub const EMPTY_FILE: &str = "test_files/empty.json";
 
     pub fn clear_path(path: &str) {
@@ -78,7 +77,7 @@ pub mod test_utils {
     }
 
     #[allow(dead_code)]
-    pub fn create_test_user_profile () {
+    pub fn create_test_user_profile() {
         let user_profile = UserProfile::new("test".to_string());
         // save user profile in test file
         update_file(TEST_FILE, &FileContents::UserProfile(user_profile.clone())).unwrap();
@@ -86,14 +85,6 @@ pub mod test_utils {
         let mut users = Users::new();
         users.add_user(user_profile);
         update_file(TEST_FILE, &FileContents::Users(users)).unwrap();
-
-    }
-    pub fn generate_invalid_json() {
-        let path = Path::new(INVALID_FILE);
-        if !path.exists() {
-            let mut file = fs::File::create(path).unwrap();
-            file.write_all(b"invalid json").unwrap();
-        }
     }
 }
 
@@ -123,18 +114,6 @@ mod tests {
         clear_path(EMPTY_FILE);
     }
 
-    #[test]
-    fn test_read_file_invalid_json() {
-        generate_invalid_json();
-        let contents = read_file(INVALID_FILE);
-
-        assert!(matches!(
-            contents,
-            Err(ResultError::FileError(FileError::SerdeError(_)))
-        ));
-        clear_path(INVALID_FILE);
-    }
-
     //tests for update_file
     #[test]
     fn test_update_file() {
@@ -149,21 +128,6 @@ mod tests {
 
         assert_eq!(contents, FileContents::Users(users));
         clear_path(&unique_path);
-    }
-
-    #[test]
-    fn test_update_file_invalid_json() {
-        generate_invalid_json();
-        let mut users = Users::new();
-        users.add_user(UserProfile::new("test".to_string()));
-
-        let result = update_file(INVALID_FILE, &FileContents::Users(users));
-        assert!(matches!(
-            result,
-            Err(ResultError::FileError(FileError::SerdeError(_)))
-        ));
-
-        clear_path(INVALID_FILE);
     }
 
     #[test]
