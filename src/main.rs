@@ -212,6 +212,19 @@ fn main() {
             let exercise = profile.get_chosen_exercise().unwrap();
             println!("Current exercise: {}", exercise);
         }
+        Some(("add-set", sub_m)) => {
+            let reps = sub_m.get_one::<String>("reps").unwrap();
+            let weight = sub_m.get_one::<String>("weight").unwrap();
+
+            let current_user = user_profile::get_current_user().unwrap();
+            let chosen_exercise = current_user.get_chosen_exercise().unwrap();
+            set::create_set(
+                chosen_exercise.to_owned(),
+                reps.parse::<u32>().unwrap(),
+                weight.parse::<f32>().unwrap(),
+                false,
+            );
+        }
         _ => {}
     }
 }

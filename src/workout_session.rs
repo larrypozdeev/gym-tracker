@@ -1,17 +1,17 @@
-use crate::exercise::Exercise;
+use crate::set::Set;
 use crate::user_profile::{self, save_user_profile};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct WorkoutSession {
-    exercises: Vec<Exercise>,
+    sets: Vec<crate::set::Set>,
     name: String,
 }
 impl WorkoutSession {
-    pub fn new(exercises: Vec<Exercise>) -> WorkoutSession {
+    pub fn new(sets: Vec<Set>) -> WorkoutSession {
         WorkoutSession {
-            exercises,
+            sets,
             name: String::from(
                 DateTime::<Utc>::from(Utc::now())
                     .format("%m-%d-%Y")
@@ -22,14 +22,14 @@ impl WorkoutSession {
     pub fn get_name(&self) -> &String {
         &self.name
     }
-    pub fn get_exercises(&self) -> &Vec<Exercise> {
-        &self.exercises
+    pub fn get_sets(&self) -> &Vec<Set> {
+        &self.sets
     }
-    pub fn add_exercise(&mut self, exercise: Exercise) {
-        self.exercises.push(exercise);
+    pub fn add_set(&mut self, set: Set) {
+        self.sets.push(set);
     }
-    pub fn remove_exercise(&mut self, exercise: Exercise) {
-        self.exercises.retain(|x| x != &exercise);
+    pub fn remove_set(&mut self, set: Set) {
+        self.sets.retain(|s| s != &set);
     }
 }
 
@@ -106,6 +106,22 @@ pub fn get_current_session() -> WorkoutSession {
         .unwrap();
 
     workout_session.clone()
+}
+pub fn save_current_session(workout_session: &WorkoutSession) -> crate::errors::Result<()> {
+    let current_user = user_profile::read_current_user().unwrap();
+    let users = user_profile::read_profiles().unwrap();
+
+    let mut user = users
+        .list()
+        .iter()
+        .find(|x| x.get_name() == &current_user)
+        .unwrap()
+        .clone();
+
+    user.remove_workout(workout_session.clone());
+    user.add_workout(workout_session.clone());
+
+    save_user_profile(&user)
 }
 pub fn delete() {
     let current_user = user_profile::read_current_user().unwrap();
