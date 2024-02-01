@@ -103,9 +103,10 @@ fn cli() -> Command {
                         .help("The name of the exercise")
                         .required(true)
                         .index(1),
-                )
+                ),
+            Command::new("current-exercise").about("Shows the current exercise"),
         ])
-        .subcommands([Command::new("create-set")
+        .subcommands([Command::new("add-set")
             .about("Creates a set for the current workout session")
             .arg(
                 Arg::new("reps")
@@ -205,6 +206,11 @@ fn main() {
         Some(("choose-exercise", sub_m)) => {
             let name = sub_m.get_one::<String>("name").unwrap();
             exercise::choose_exercise(name.to_string()).unwrap();
+        }
+        Some(("current-exercise", _)) => {
+            let profile = user_profile::get_current_user().unwrap();
+            let exercise = profile.get_chosen_exercise().unwrap();
+            println!("Current exercise: {}", exercise);
         }
         _ => {}
     }
