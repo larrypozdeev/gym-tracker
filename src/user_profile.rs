@@ -1,9 +1,9 @@
 use crate::errors::Result;
 use crate::errors::ResultError::OtherError;
+use crate::exercise::Exercise;
 use crate::utils::{read_file, update_file, FileContents};
 use crate::workout_session::WorkoutSession;
 use serde::{Deserialize, Serialize};
-use crate::exercise::Exercise;
 const FILE_NAME: &str = "user_profile.json";
 const CURRENT_USER_FILE_NAME: &str = "current_user.json";
 
@@ -11,8 +11,9 @@ const CURRENT_USER_FILE_NAME: &str = "current_user.json";
 pub struct UserProfile {
     name: String,
     chosen_workout_session: Option<String>,
+    chosen_exercise: Option<String>,
     workouts: Vec<WorkoutSession>,
-    created_exercises: Vec<Exercise>
+    created_exercises: Vec<Exercise>,
 }
 
 impl UserProfile {
@@ -20,6 +21,7 @@ impl UserProfile {
         UserProfile {
             name,
             chosen_workout_session: None,
+            chosen_exercise: None,
             workouts: Vec::new(),
             created_exercises: Vec::new(),
         }
@@ -30,6 +32,12 @@ impl UserProfile {
     pub fn set_chosen_workout_session(&mut self, workout_session: String) {
         self.chosen_workout_session = Some(workout_session);
     }
+    pub fn set_chosen_exercise(&mut self, exercise: String) {
+        self.chosen_exercise = Some(exercise);
+    }
+    pub fn get_chosen_exercise(&self) -> Option<&String> {
+        self.chosen_exercise.as_ref()
+    }
     pub fn add_workout(&mut self, workout: WorkoutSession) {
         self.workouts.push(workout);
     }
@@ -38,6 +46,9 @@ impl UserProfile {
     }
     pub fn get_exercises(&self) -> &Vec<Exercise> {
         &self.created_exercises
+    }
+    pub fn remove_exercise(&mut self, name: &str) {
+        self.created_exercises.retain(|x| x.get_name() != name);
     }
     pub fn remove_workout(&mut self, workout: WorkoutSession) {
         self.workouts.retain(|x| x != &workout);
@@ -97,7 +108,6 @@ impl Users {
         }
         None
     }
-
 }
 
 pub fn read_profiles() -> Result<Users> {
@@ -118,8 +128,7 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
 
     if !user_exists {
         users.add_user(user_profile.clone());
-    }
-    else {
+    } else {
         let user = users
             .get_user(user_profile.get_name())
             .ok_or(OtherError("User does not exist".to_string()))?;
@@ -134,7 +143,6 @@ pub fn save_user_profile(user_profile: &UserProfile) -> Result<()> {
     let file_contents = FileContents::Users(users);
     update_file(FILE_NAME, &file_contents)
 }
-
 
 pub fn create_profile(name: String) -> Result<()> {
     let user_profile = UserProfile::new(name);
@@ -199,7 +207,6 @@ pub fn choose_profile(name: String) -> Result<()> {
     update_file(CURRENT_USER_FILE_NAME, &file_contents)
 }
 
-
 #[cfg(test)]
 mod tests {
     // unit tests for user_profile.rs
@@ -249,10 +256,7 @@ mod tests {
         let user = UserProfile::new("test".to_string());
         users.add_user(user.clone());
         let result = users.delete_user("test2".to_string());
-        assert!(matches!(
-            result,
-            Err(ResultError::OtherError(_))
-        ));
+        assert!(matches!(result, Err(ResultError::OtherError(_))));
     }
 
     #[test]
@@ -268,5 +272,4 @@ mod tests {
         let users = Users::new();
         assert_eq!(users.get_user(&"test".to_string()), None);
     }
-
 }

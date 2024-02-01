@@ -63,7 +63,7 @@ pub fn update_file(path: &str, contents: &FileContents) -> Result<()> {
 pub mod test_utils {
     use std::path::Path;
     use std::{fs, io::Write};
-    use crate::user_profile::{UserProfile, Users, save_user_profile};
+    use crate::user_profile::{UserProfile, Users};
     use crate::utils::{FileContents, read_file, update_file};
 
     pub const TEST_FILE: &str = "test_files/test.json";

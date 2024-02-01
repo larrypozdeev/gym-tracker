@@ -65,7 +65,7 @@ fn cli() -> Command {
                         .help("The name of the exercise")
                         .action(ArgAction::Set)
                         .short('n')
-                        .required(true)
+                        .required(true),
                 )
                 .arg(
                     Arg::new("musclegroups")
@@ -80,19 +80,30 @@ fn cli() -> Command {
                         .help("The equipment used for the exercise")
                         .short('e')
                         .action(ArgAction::Set)
-                        .required(true)
+                        .required(true),
                 )
                 .arg(
                     Arg::new("description")
                         .help("The description of the exercise")
                         .short('d')
                         .required(false)
-                        .action(ArgAction::Set)
+                        .action(ArgAction::Set),
                 ),
             Command::new("list-exercises").about("Lists all exercises"),
-            Command::new("delete-exercise").about("Deletes an exercise"),
-            Command::new("edit-exercise").about("Edits an exercise"),
-            Command::new("choose-exercise").about("Chooses an exercise"),
+            Command::new("delete-exercise").about("Deletes an exercise")
+                .arg(
+                    Arg::new("name")
+                        .help("The name of the exercise")
+                        .required(true)
+                        .index(1),
+                ),
+            Command::new("choose-exercise").about("Chooses an exercise")
+                .arg(
+                    Arg::new("name")
+                        .help("The name of the exercise")
+                        .required(true)
+                        .index(1),
+                )
         ])
         .subcommands([Command::new("create-set")
             .about("Creates a set for the current workout session")
@@ -180,6 +191,20 @@ fn main() {
                 equipment.to_string(),
             )
             .unwrap();
+        }
+        Some(("list-exercises", _)) => {
+            let user_profile = user_profile::get_current_user().unwrap();
+            for exercise in user_profile.get_exercises() {
+                println!("{}", exercise.get_name());
+            }
+        }
+        Some(("delete-exercise", sub_m)) => {
+            let name = sub_m.get_one::<String>("name").unwrap();
+            exercise::delete_exercise(name).unwrap();
+        }
+        Some(("choose-exercise", sub_m)) => {
+            let name = sub_m.get_one::<String>("name").unwrap();
+            exercise::choose_exercise(name.to_string()).unwrap();
         }
         _ => {}
     }
